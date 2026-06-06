@@ -66,12 +66,20 @@ app.get('/health', (req, res) => {
   });
 });
 
+// 404 Not Found Middleware (Catch-all for undefined routes)
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Cannot ${req.method} ${req.originalUrl}`
+  });
+});
+
 // Error Handler Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.statusCode || 500).json({
     success: false,
-    error: err.message || 'Server Error'
+    message: err.message || 'Server Error'
   });
 });
 

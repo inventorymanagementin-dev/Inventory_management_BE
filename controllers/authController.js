@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ success: false, error: 'User already exists' });
+      return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
     const user = await User.create({
@@ -29,16 +29,16 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      data: {
+      token: generateToken(user._id),
+      user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id),
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -51,35 +51,35 @@ exports.login = async (req, res) => {
 
     // Validate email & password
     if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Please provide an email and password' });
+      return res.status(400).json({ success: false, message: 'Please provide an email and password' });
     }
 
     // Check for user
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     res.status(200).json({
       success: true,
-      data: {
+      token: generateToken(user._id),
+      user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id),
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -92,9 +92,9 @@ exports.getMe = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: user,
+      user,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
