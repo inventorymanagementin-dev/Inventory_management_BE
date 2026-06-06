@@ -18,7 +18,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS
-app.use(cors());
+app.use(cors({
+  origin: ['https://inventorymanagement.site', 'https://www.inventorymanagement.site'],
+  credentials: true
+}));
 
 // Set security headers
 app.use(helmet());
@@ -49,7 +52,18 @@ app.use('/api/dashboard', protect, dashboardRoutes);
 
 // Base route
 app.get('/', (req, res) => {
-  res.send('Inventory Management API is running...');
+  res.json({
+    success: true,
+    message: 'Inventory Management API Running'
+  });
+});
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Inventory Management API Running'
+  });
 });
 
 // Error Handler Middleware
